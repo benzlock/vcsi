@@ -214,14 +214,29 @@ class MediaInfo(object):
             error = "Could not find 'ffprobe' executable. Please make sure ffmpeg/ffprobe is installed and is in your PATH."
             error_exit(error)
 
-    def human_readable_size(self, num, suffix='B'):
+    def human_readable_size(self, num, base=1024.0, prefix=None, suffix='B'):
         """Converts a number of bytes to a human readable format
         """
-        for unit in ['', 'Ki', 'Mi', 'Gi', 'Ti', 'Pi', 'Ei', 'Zi']:
-            if abs(num) < 1024.0:
-                return "%3.1f %s%s" % (num, unit, suffix)
-            num /= 1024.0
-        return "%.1f %s%s" % (num, 'Yi', suffix)
+        if base == 1000.0:
+            units = ['', 'K', 'M', 'G', 'T', 'P', 'E', 'Z']
+            max_unit = 'Y'
+        else:
+            units = ['', 'Ki', 'Mi', 'Gi', 'Ti', 'Pi', 'Ei', 'Zi']
+            max_unit = 'Yi'
+
+        if prefix is None:
+            for unit in units:
+                if abs(num) < base:
+                    return "%3.1f %s%s" % (num, unit, suffix)
+                num /= base
+            return "%.1f %s%s" % (num, max_unit, suffix)
+        else:
+            try:
+                power = units.index(prefix)
+            except ValueError:
+                error = f"Unknown metric prefix {prefix!r}"
+                error_exit(error)
+            return "%3.1f %s%s" % (num / base ** power, prefix, suffix)
 
     def find_video_stream(self):
         """Find the first stream which is a video stream
@@ -303,7 +318,8 @@ class MediaInfo(object):
         self.filename = os.path.basename(format_dict["filename"])
 
         self.size_bytes = int(format_dict["size"])
-        self.size = self.human_readable_size(self.size_bytes)
+        self.size = self.human_readable_size(self.size_bytes, base=1024.0)
+        self.size_metric = self.human_readable_size(self.size_bytes, base=1000.0)
 
     @staticmethod
     def pretty_to_seconds(
@@ -468,6 +484,7 @@ class MediaInfo(object):
         """
         table = []
         table.append({"name": "size", "description": "File size (pretty format)", "example": "128.3 MiB"})
+        table.append({"name": "size_bytes", "description": "File size (pretty format, metric)", "example": "134.5 MB"})
         table.append({"name": "size_bytes", "description": "File size (bytes)", "example": "4662788373"})
         table.append({"name": "filename", "description": "File name", "example": "video.mkv"})
         table.append({"name": "duration", "description": "Duration (pretty format)", "example": "03:07"})

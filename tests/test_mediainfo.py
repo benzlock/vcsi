@@ -51,6 +51,8 @@ def test_size_bytes():
 def test_size():
     mi = MediaInfoForTest(FFPROBE_EXAMPLE_JSON_PATH)
     assert mi.size == "339.4 MiB"
+    assert mi.size_metric == "355.9 MB"
+    assert mi.human_readable_size(mi.size_bytes, base=1000.0, prefix="K") == "355856.6 KB"
 
 
 def test_template_attributes():
