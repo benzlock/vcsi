@@ -484,7 +484,7 @@ class MediaInfo(object):
         """
         table = []
         table.append({"name": "size", "description": "File size (pretty format)", "example": "128.3 MiB"})
-        table.append({"name": "size_bytes", "description": "File size (pretty format, metric)", "example": "134.5 MB"})
+        table.append({"name": "size_metric", "description": "File size (pretty format, metric)", "example": "134.5 MB"})
         table.append({"name": "size_bytes", "description": "File size (bytes)", "example": "4662788373"})
         table.append({"name": "filename", "description": "File name", "example": "video.mkv"})
         table.append({"name": "duration", "description": "Duration (pretty format)", "example": "03:07"})
